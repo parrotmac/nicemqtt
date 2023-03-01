@@ -206,7 +206,7 @@ func (c *DefaultClient) Connect(ctx context.Context) error {
 	}
 
 	if c.pahoClient.IsConnected() {
-		log.Println("Repotedly Connected")
+		log.Println("Connected")
 	} else {
 		log.Panicln("Could not connect to broker")
 	}
@@ -231,13 +231,13 @@ func (c *DefaultClient) Publish(ctx context.Context, topic string, qos byte, ret
 
 func (c *DefaultClient) attachSubscription(topic string, qos byte, callback Callback) error {
 	if c.pahoClient == nil {
-		return fmt.Errorf("Client not initialized")
+		return fmt.Errorf("client not initialized")
 	}
 
-	if err := c.pahoClient.Subscribe(topic, qos, func(client paho.Client, msg paho.Message) {
+	if token := c.pahoClient.Subscribe(topic, qos, func(client paho.Client, msg paho.Message) {
 		callback(msg.Topic(), msg.Payload())
-	}); err != nil {
-		return fmt.Errorf("Could not subscribe: %s", err)
+	}); token.Error() != nil {
+		return fmt.Errorf("could not subscribe: %s", token.Error())
 	}
 
 	return nil
